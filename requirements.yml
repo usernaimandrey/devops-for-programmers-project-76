@@ -1,0 +1,15 @@
+---
+- name: Update cahe Ubuntu
+  ansible.builtin.command: apt update
+  when: ansible_os_family == "Debian"
+  tags: system
+
+- name: Update cache Centos
+  ansible.builtin.command: yum update
+  when: ansible_os_family == "RedHat"
+  tags: system
+
+- import_role:
+    name: geerlingguy.pip
+  vars:
+    pip_install_packages: '{{ deps }}'
