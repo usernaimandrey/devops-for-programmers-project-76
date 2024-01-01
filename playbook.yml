@@ -2,6 +2,41 @@
 - hosts: all
   tasks:
     - name: Update system and install pip && Docker
-      ansible.builtin.import_tasks:
-        file: requirements.yml
+      import_tasks: requirements.yml
+      tags: setup
       become: yes
+
+    - community.docker.docker_network:
+        name: redmine
+      become: yes
+      tags: deploy
+
+    - community.docker.docker_container:
+        name: app
+        image: redmine:latest
+        restart_policy: always
+        state: started
+        networks:
+          - name: redmine
+        # ports:
+          # - 80:3000
+      become: yes
+      tags: deploy
+
+    - community.docker.docker_container:
+        name: caddy
+        image: caddy:latest
+        restart_policy: always
+        state: started
+        volumes:
+          - "{{ playbook_dir }}/files/Caddyfile:/etc/caddy/Caddyfile"
+        networks:
+          - name: redmine
+        ports:
+          - 80:80
+          - 443:443
+      become: yes
+      tags: deploy
+
+
+

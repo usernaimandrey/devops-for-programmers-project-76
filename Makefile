@@ -5,7 +5,10 @@ install-pip-role:
 	make install-role R='geerlingguy.pip'
 
 setup:
-	ansible-playbook playbook.yml -i inventory.ini
+	ansible-playbook playbook.yml -i inventory.ini --vault-password-file pass -t setup
+
+deploy:
+	ansible-playbook playbook.yml -i inventory.ini --vault-password-file pass -t deploy
 
 edit-secrets:
 	ansible-vault edit group_vars/all/vault.yml
