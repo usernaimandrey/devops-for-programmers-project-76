@@ -1,14 +1,10 @@
-localhost {
-    tls internal
-
-    handle /images/* {
-        file_server
-        root * /app/public
-    }
+:80 {
 
     handle {
         reverse_proxy app:3000
+        reverse_proxy localhost:3000
     }
+
 
     log {
         format json

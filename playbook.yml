@@ -1,4 +1,11 @@
 ---
+- hosts: localhost
+  tasks:
+    - template:
+        src: templates/env.j2
+        dest: .env
+      tags: deploy
+
 - hosts: all
   tasks:
     - name: Update system and install pip && Docker
@@ -7,8 +14,18 @@
       become: yes
 
     - community.docker.docker_network:
-        name: redmine
+        name: hexlet
       become: yes
+      tags: deploy
+
+    - template:
+        src: .env
+        dest: .env
+      tags: deploy
+
+    - template:
+        src: files/Caddyfile
+        dest: Caddyfile
       tags: deploy
 
     - community.docker.docker_container:
@@ -16,22 +33,23 @@
         image: redmine:latest
         restart_policy: always
         state: started
+        # env_file: .env
         networks:
-          - name: redmine
+          - name: hexlet
         # ports:
           # - 80:3000
       become: yes
       tags: deploy
 
     - community.docker.docker_container:
-        name: caddy
+        name: web
         image: caddy:latest
         restart_policy: always
         state: started
         volumes:
-          - "{{ playbook_dir }}/files/Caddyfile:/etc/caddy/Caddyfile"
+          - ./Caddyfile:/etc/caddy/Caddyfile
         networks:
-          - name: redmine
+          - name: hexlet
         ports:
           - 80:80
           - 443:443
