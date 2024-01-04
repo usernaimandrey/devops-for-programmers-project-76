@@ -156,6 +156,13 @@ resource "yandex_vpc_security_group" "alb-vm-sg" {
     v4_cidr_blocks = ["0.0.0.0/0"]
     port           = 22
   }
+  egress {
+    protocol       = "ANY"
+    description    = "any"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    from_port      = 1
+    to_port        = 65535
+  }
 }
 
 resource "yandex_compute_image" "container-optimized-image" {
@@ -325,49 +332,49 @@ resource "yandex_dns_recordset" "rs-2" {
 
 # postger cluster
 
-# resource "yandex_mdb_postgresql_cluster" "dev-cluster" {
-#   name        = "dev-cluster"
-#   environment = "PRODUCTION"
-#   network_id  = yandex_vpc_network.network-1.id
-#   security_group_ids = [yandex_vpc_security_group.dev_pg.id]
+resource "yandex_mdb_postgresql_cluster" "dev-cluster" {
+  name        = "dev-cluster"
+  environment = "PRODUCTION"
+  network_id  = yandex_vpc_network.network-1.id
+  security_group_ids = [yandex_vpc_security_group.dev_pg.id]
 
-#   config {
-#     version = 14
-#     resources {
-#       resource_preset_id = "s2.micro"
-#       disk_type_id       = "network-ssd"
-#       disk_size          = "20"
-#     }
-#   }
+  config {
+    version = 14
+    resources {
+      resource_preset_id = "s2.micro"
+      disk_type_id       = "network-ssd"
+      disk_size          = "20"
+    }
+  }
   
-#   host {
-#     zone = "ru-central1-a"
-#     name = "dev-pg-host"
-#     subnet_id = yandex_vpc_subnet.subnet-1.id
-#   }
-# }
+  host {
+    zone = "ru-central1-a"
+    name = "dev-pg-host"
+    subnet_id = yandex_vpc_subnet.subnet-1.id
+  }
+}
 
-# resource "yandex_mdb_postgresql_user" "hexlet" {
-#   cluster_id = yandex_mdb_postgresql_cluster.dev-cluster.id
-#   name       = var.db_user
-#   password   = var.db_password
-# }
+resource "yandex_mdb_postgresql_user" "hexlet" {
+  cluster_id = yandex_mdb_postgresql_cluster.dev-cluster.id
+  name       = var.db_user
+  password   = var.db_password
+}
 
-# resource "yandex_mdb_postgresql_database" "db1" {
-#   cluster_id = yandex_mdb_postgresql_cluster.dev-cluster.id
-#   name = "db1"
-#   owner = "hexlet"
-# }
+resource "yandex_mdb_postgresql_database" "db1" {
+  cluster_id = yandex_mdb_postgresql_cluster.dev-cluster.id
+  name = "db1"
+  owner = "hexlet"
+}
 
 
-# resource "yandex_vpc_security_group" "dev_pg" {
-#   name = "dev-pg"
-#   network_id = yandex_vpc_network.network-1.id
+resource "yandex_vpc_security_group" "dev_pg" {
+  name = "dev-pg"
+  network_id = yandex_vpc_network.network-1.id
 
-#   ingress {
-#     description = "Postgres"
-#     port        = 6432
-#     protocol = "TCP"
-#     v4_cidr_blocks = [ "0.0.0.0/0" ]
-#   }
-# }
+  ingress {
+    description = "Postgres"
+    port        = 6432
+    protocol = "TCP"
+    v4_cidr_blocks = [ "0.0.0.0/0" ]
+  }
+}

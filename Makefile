@@ -19,5 +19,3 @@ configure-terraform:
 create-token:
 	bin/create_token
 
-edit-secrets:
-	ansible-vault edit group_vars/all/vault.yml

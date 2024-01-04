@@ -7,6 +7,8 @@
       tags: deploy
 
 - hosts: all
+  vars_files:
+    - vars.yml
   tasks:
     - name: Update system and install pip && Docker
       import_tasks: requirements.yml
@@ -34,6 +36,12 @@
         restart_policy: always
         state: started
         # env_file: .env
+        env:
+          REDMINE_DB_PASSWORD: '{{ db_password }}'
+          REDMINE_DB_USERNAME: '{{ db_user }}'
+          REDMINE_DB_POSTGRES: '{{ db_host }}'
+          REDMINE_DB_PORT: '{{ db_port }}'
+          REDMINE_DB_DATABASE: '{{ db_name }}'
         networks:
           - name: hexlet
         # ports:
