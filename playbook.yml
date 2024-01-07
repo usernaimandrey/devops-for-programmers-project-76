@@ -1,40 +1,47 @@
 ---
-- hosts: localhost
+- name: Setup packages
+  hosts: all
+  become: yes
   tasks:
-    - template:
-        src: templates/env.j2
-        dest: .env
-      tags: deploy
+    - name: update packages cache
+      ansible.builtin.apt:
+        update_cache: true
+      
+    - name: Install pip and packages
+      ansible.builtin.include_role:
+        name: geerlingguy.pip
 
-- hosts: all
+- name: Deploy redmine
+  hosts: all
   vars_files:
     - vars.yml
+  become: yes
   tasks:
-    - name: Update system and install pip && Docker
-      import_tasks: requirements.yml
-      tags: setup
-      become: yes
+    - name: create environment variables from template
+      ansible.builtin.template:
+        src: env.j2
+        dest: '.env'
+        mode: 0644
 
-    - community.docker.docker_network:
-        name: hexlet
-      become: yes
-      tags: deploy
-
-    - template:
-        src: .env
-        dest: .env
-      tags: deploy
+    - name: Create network
+      community.docker.docker_network:
+        name: my_network
 
     - template:
         src: files/Caddyfile
         dest: Caddyfile
-      tags: deploy
 
-    - community.docker.docker_container:
+    - name: run container redmine
+      community.docker.docker_container:
         name: app
-        image: redmine:latest
+        image: redmine
+        # published_ports: "{{ redmine_port }}:3000"
         restart_policy: always
-        state: started
+        restart: true
+        container_default_behavior: no_defaults
+        pull: true
+        networks:
+          - name: my_network
         # env_file: .env
         env:
           REDMINE_DB_PASSWORD: '{{ db_password }}'
@@ -42,14 +49,9 @@
           REDMINE_DB_POSTGRES: '{{ db_host }}'
           REDMINE_DB_PORT: '{{ db_port }}'
           REDMINE_DB_DATABASE: '{{ db_name }}'
-        networks:
-          - name: hexlet
-        # ports:
-          # - 80:3000
-      become: yes
-      tags: deploy
 
-    - community.docker.docker_container:
+    - name: run container Caddy
+      community.docker.docker_container:
         name: web
         image: caddy:latest
         restart_policy: always
@@ -57,12 +59,16 @@
         volumes:
           - ./Caddyfile:/etc/caddy/Caddyfile
         networks:
-          - name: hexlet
+          - name: my_network
         ports:
           - 80:80
           - 443:443
-      become: yes
-      tags: deploy
 
-
-
+- name: Setting up Datadog agent
+  hosts: webservers
+  vars_files:
+    - vars.yml
+  become: yes
+  remote_user: root
+  roles:
+    - role: datadog.datadog

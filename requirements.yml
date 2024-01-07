@@ -1,13 +1,6 @@
----
-- name: Update cahe Ubuntu
-  ansible.builtin.command: apt update
-  when: ansible_os_family == "Debian"
+roles:
+  - name: geerlingguy.pip
+  - name: datadog.datadog
+collections:
+  - name: community.docker
 
-- name: Update cache Centos
-  ansible.builtin.command: yum update
-  when: ansible_os_family == "RedHat"
-
-- import_role:
-    name: geerlingguy.pip
-  vars:
-    pip_install_packages: '{{ deps }}'

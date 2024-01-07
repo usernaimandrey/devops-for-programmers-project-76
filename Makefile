@@ -1,20 +1,22 @@
-install-role:
-	ansible-galaxy install $(R)
+export ANSIBLE_VAULT_PASSWORD_FILE=$(CURDIR)/vault-password
 
-install-pip-role:
-	make install-role R='geerlingguy.pip'
+prepare-vault-password:
+	touch vault-password
 
-setup:
-	ansible-playbook playbook.yml -i inventory.ini --vault-password-file pass -t setup
+install:
+	ansible-galaxy install -r requirements.yml
 
 deploy:
-	ansible-playbook playbook.yml -i inventory.ini --vault-password-file pass -t deploy
+	ansible-playbook playbook.yml -i inventory.ini
 
-edit-secrets:
-	ansible-vault edit group_vars/all/vault.yml
+edit-vault:
+	ansible-vault edit group_vars/webservers/vault.yml
+
+view-vault:
+	ansible-vault view group_vars/webservers/vault.yml
 
 configure-terraform:
-	ansible-playbook terraform.yml -i inventory.ini --vault-password-file pass  -u $$USER
+	ansible-playbook terraform.yml -i inventory.ini --vault-password-file vault-password  -u $$USER
 
 create-token:
 	bin/create_token

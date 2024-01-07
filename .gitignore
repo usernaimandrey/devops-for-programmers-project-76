@@ -1,4 +1,4 @@
 *.tfvars
-pass
+vault-password
 .terraform
 .env
