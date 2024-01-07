@@ -23,9 +23,9 @@
         dest: '.env'
         mode: 0644
 
-    - name: Create network
-      community.docker.docker_network:
-        name: my_network
+    # - name: Create network
+    #   community.docker.docker_network:
+    #     name: my_network
 
     - template:
         src: files/Caddyfile
@@ -40,8 +40,8 @@
         restart: true
         container_default_behavior: no_defaults
         pull: true
-        networks:
-          - name: my_network
+        # networks:
+        #   - name: my_network
         env_file: .env
         # env:
           # REDMINE_DB_PASSWORD: '{{ db_password }}'
@@ -50,19 +50,19 @@
           # REDMINE_DB_PORT: '{{ db_port }}'
           # REDMINE_DB_DATABASE: '{{ db_name }}'
 
-    - name: run container Caddy
-      community.docker.docker_container:
-        name: web
-        image: caddy:latest
-        restart_policy: always
-        state: started
-        volumes:
-          - ./Caddyfile:/etc/caddy/Caddyfile
-        networks:
-          - name: my_network
-        ports:
-          - 80:80
-          - 443:443
+    # - name: run container Caddy
+    #   community.docker.docker_container:
+    #     name: web
+    #     image: caddy:latest
+    #     restart_policy: always
+    #     state: started
+    #     volumes:
+    #       - ./Caddyfile:/etc/caddy/Caddyfile
+    #     networks:
+    #       - name: my_network
+    #     ports:
+    #       - 80:80
+    #       - 443:443
 
 - name: Setting up Datadog agent
   hosts: webservers
