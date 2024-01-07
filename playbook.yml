@@ -27,9 +27,9 @@
     #   community.docker.docker_network:
     #     name: my_network
 
-    - template:
-        src: files/Caddyfile
-        dest: Caddyfile
+    # - template:
+    #     src: files/Caddyfile
+    #     dest: Caddyfile
 
     - name: run container redmine
       community.docker.docker_container:
