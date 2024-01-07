@@ -13,13 +13,6 @@ datadog_checks:
     init_config:
     instances:
       - name: App status
-        url: "http://localhost:{{ port }}"
+        url: "http://localhost:{{ redmine_port }}"
         timeout: 5
         method: GET
-
-db_user: "{{ vault_db_user }}"
-db_password: "{{ vault_db_password }}"
-db_port: "{{ vault_db_port }}"
-db_name: "{{ vault_db_name }}"
-db_host: "{{ vault_db_name }}"
-

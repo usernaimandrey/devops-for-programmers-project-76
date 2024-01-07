@@ -1,7 +1,7 @@
 ---
 - name: Setup packages
   hosts: all
-  become: yes
+  # become: yes
   tasks:
     - name: update packages cache
       ansible.builtin.apt:
@@ -13,9 +13,9 @@
 
 - name: Deploy redmine
   hosts: all
-  vars_files:
-    - vars.yml
-  become: yes
+  # vars_files:
+    # - vars.yml
+  # become: yes
   tasks:
     - name: create environment variables from template
       ansible.builtin.template:
@@ -35,20 +35,20 @@
       community.docker.docker_container:
         name: app
         image: redmine
-        # published_ports: "{{ redmine_port }}:3000"
+        published_ports: "{{ redmine_port }}:3000"
         restart_policy: always
         restart: true
         container_default_behavior: no_defaults
         pull: true
         networks:
           - name: my_network
-        # env_file: .env
-        env:
-          REDMINE_DB_PASSWORD: '{{ db_password }}'
-          REDMINE_DB_USERNAME: '{{ db_user }}'
-          REDMINE_DB_POSTGRES: '{{ db_host }}'
-          REDMINE_DB_PORT: '{{ db_port }}'
-          REDMINE_DB_DATABASE: '{{ db_name }}'
+        env_file: .env
+        # env:
+          # REDMINE_DB_PASSWORD: '{{ db_password }}'
+          # REDMINE_DB_USERNAME: '{{ db_user }}'
+          # REDMINE_DB_POSTGRES: '{{ db_host }}'
+          # REDMINE_DB_PORT: '{{ db_port }}'
+          # REDMINE_DB_DATABASE: '{{ db_name }}'
 
     - name: run container Caddy
       community.docker.docker_container:
@@ -68,7 +68,7 @@
   hosts: webservers
   vars_files:
     - vars.yml
-  become: yes
+  # become: yes
   remote_user: root
   roles:
     - role: datadog.datadog
